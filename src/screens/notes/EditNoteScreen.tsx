@@ -7,6 +7,7 @@ import { COLORS } from '../../app/theme';
 import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { AppButton } from '../../components/ui/AppButton';
+import { showSuccess } from '../../utils/feedback';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'EditNote'>;
 
@@ -24,15 +25,18 @@ export function EditNoteScreen({ navigation, route }: Props) {
       <AppCard>
         <Text style={styles.label}>Title</Text>
         <TextInput value={title} onChangeText={setTitle} style={styles.input} />
+        {!title.trim() ? <Text style={styles.error}>Title is required.</Text> : null}
 
         <Text style={[styles.label, styles.spaced]}>Content</Text>
         <TextInput value={content} onChangeText={setContent} style={[styles.input, styles.multi]} multiline />
+        {!content.trim() ? <Text style={styles.error}>Content is required.</Text> : null}
 
         <Text style={styles.spaced} />
         <AppButton
           title="Save Changes"
           onPress={() => {
             updateNote(note.id, title.trim(), content.trim());
+            showSuccess('Note updated.');
             navigation.goBack();
           }}
           disabled={!valid}
@@ -55,6 +59,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   multi: { minHeight: 150, textAlignVertical: 'top' },
+  error: { marginTop: 6, color: COLORS.danger, fontWeight: '700' },
   notFoundWrap: { flex: 1, backgroundColor: COLORS.bg, alignItems: 'center', justifyContent: 'center' },
   notFoundTxt: { color: COLORS.muted },
 });

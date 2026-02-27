@@ -14,3 +14,20 @@ export const SPACING = {
   md: 14,
   lg: 18,
 };
+
+export const RADIUS = {
+  sm: 10,
+  md: 12,
+  lg: 14,
+};
+
+export const TYPOGRAPHY = {
+  title: 16,
+  subtitle: 14,
+  body: 13,
+  caption: 12,
+};
+
+export const CONTROL = {
+  height: 44,
+};

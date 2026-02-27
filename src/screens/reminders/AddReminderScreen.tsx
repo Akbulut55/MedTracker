@@ -7,6 +7,7 @@ import { COLORS } from '../../app/theme';
 import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { AppButton } from '../../components/ui/AppButton';
+import { showSuccess } from '../../utils/feedback';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AddReminder'>;
 
@@ -22,9 +23,11 @@ export function AddReminderScreen({ navigation }: Props) {
       <AppCard>
         <Text style={styles.label}>Title</Text>
         <TextInput value={title} onChangeText={setTitle} style={styles.input} />
+        {!title.trim() ? <Text style={styles.error}>Title is required.</Text> : null}
 
         <Text style={[styles.label, styles.spaced]}>Detail</Text>
         <TextInput value={detail} onChangeText={setDetail} style={[styles.input, styles.multi]} multiline />
+        {!detail.trim() ? <Text style={styles.error}>Detail is required.</Text> : null}
 
         <Text style={[styles.label, styles.spaced]}>Category (optional)</Text>
         <TextInput value={module} onChangeText={setModule} style={styles.input} />
@@ -35,6 +38,7 @@ export function AddReminderScreen({ navigation }: Props) {
           disabled={!valid}
           onPress={() => {
             addReminder(title.trim(), detail.trim(), module.trim() || undefined);
+            showSuccess('Reminder added.');
             navigation.goBack();
           }}
         />
@@ -56,4 +60,5 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   multi: { minHeight: 100, textAlignVertical: 'top' },
+  error: { marginTop: 6, color: COLORS.danger, fontWeight: '700' },
 });

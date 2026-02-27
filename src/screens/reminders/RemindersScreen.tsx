@@ -8,6 +8,7 @@ import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { AppButton } from '../../components/ui/AppButton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { confirmAction, showSuccess } from '../../utils/feedback';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Reminders'>;
 
@@ -41,7 +42,16 @@ export function RemindersScreen({ navigation }: Props) {
                 <AppButton title="Edit" variant="secondary" onPress={() => navigation.navigate('EditReminder', { id: item.id })} />
               </View>
               <View style={styles.col}>
-                <AppButton title="Delete" variant="danger" onPress={() => deleteReminder(item.id)} />
+                <AppButton
+                  title="Delete"
+                  variant="danger"
+                  onPress={() =>
+                    confirmAction('Delete reminder', `${item.title} silinsin mi?`, () => {
+                      deleteReminder(item.id);
+                      showSuccess('Reminder deleted.');
+                    })
+                  }
+                />
               </View>
             </View>
           </AppCard>

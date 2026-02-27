@@ -1,211 +1,233 @@
 # MedTracker
 
-MedTracker, React Native ile geliştirilmiş bir mobil sağlık takip uygulamasıdır.  
-Uygulama Android (emülatör/cihaz) hedefiyle hazırlanmıştır.
+MedTracker, React Native ile gelistirilmis mobil saglik takip uygulamasidir.
+Uygulama Android (emulator/cihaz) hedefiyle hazirlanmistir.
 
-## Teknoloji Yığını
+## Teknoloji Yigini
 - React Native (`0.84.0`)
 - TypeScript
 - React Navigation (Native Stack)
-- AsyncStorage (yerel veri kalıcılığı)
+- AsyncStorage (yerel kalicilik)
 - Notifee (Android yerel bildirimleri)
+- Jest (unit + integration test)
 
-## Uygulama Özeti
-Uygulama giriş sonrası ana menüden modüllere geçiş sağlar. Tüm temel veriler yerel depolamada tutulur ve uygulama yeniden başlatıldığında korunur.
+## Uygulama Ozeti
+- Login -> Home akisi vardir.
+- Home ekranindaki tum kutucuklar gercek ekrana gider.
+- Veriler yerelde saklanir ve uygulama yeniden acildiginda korunur.
+- Moduller ortak `DataContext` store uzerinden yonetilir.
 
-## Özellikler (Detaylı)
+## Ozellikler (Detayli)
 
-### 1) Kimlik Doğrulama ve Navigasyon
-- Login ekranı -> başarılı giriş -> Home ekranı akışı.
-- Home ekranındaki tüm kutucuklar gerçek bir ekrana yönlenir.
-- Stack tabanlı güvenli ekran geçişleri.
+### 1) Kimlik dogrulama ve navigasyon
+- Login basarili ise Home acilir.
+- Stack bazli ekran gecisleri.
 
-### 2) Ortak Veri Katmanı (Global Store)
-- `DataContext` ile merkezi veri yönetimi.
-- Yönetilen ana koleksiyonlar:
-  - `reminders`
-  - `notes`
-  - `exercise`
-  - `medications`
-  - `symptoms`
-  - `trainings`
-  - `topics + comments`
-  - `suggestions`
-  - `ratings`
+### 2) Ortak veri katmani (global store)
+`DataContext` icinde:
+- reminders
+- notes
+- exercise
+- medications
+- symptoms
+- trainings
+- topics + comments
+- suggestions
+- ratings
 
-### 3) Yerel Kalıcılık (Persistence)
-- Uygulama açılışında AsyncStorage’dan veri yükleme.
-- Veri değiştikçe otomatik kaydetme.
-- Ayarlar (`theme/font/accent/goals`) dahil kalıcılık.
+### 3) Yerel kalicilik
+- AsyncStorage ile acilista yukleme.
+- Degisikliklerde otomatik kaydetme.
+- Ayarlar (tema/font/accent/hedefler/bildirim ayarlari) kalicidir.
 
-### 4) Hatırlatmalar Modülü (CRUD)
-- Hatırlatma listeleme, ekleme, düzenleme, silme.
-- Kart görünümü, doğrulama, boş durum mesajları.
+### 4) Reminders (CRUD)
+- Ekle, duzenle, sil, listele.
+- Bos durumlar ve form dogrulama.
+- Silme islemlerinde onay penceresi.
 
-### 5) Notlar Modülü (CRUD)
-- Not listeleme, ekleme, detay görüntüleme, düzenleme, silme.
-- Kısa önizleme + detay sayfası.
+### 5) Notes (CRUD)
+- Ekle, detay gor, duzenle, sil.
+- Baslik ve icerik icin inline validation.
+- Silme islemlerinde onay penceresi.
 
-### 6) Beslenme & Egzersiz Modülü
-- Giriş ekranı:
-  - sebze gram
-  - meyve gram
-  - dakika
-  - çoklu egzersiz tipi
-  - kötü hissetme durumu
-- Kayıtlar ekranı:
-  - listeleme
-  - düzenleme
-  - silme
+### 6) Nutrition & Exercise
+- Kayit ekleme: sebze/meyve gram, dakika, egzersiz tipleri, "felt bad".
+- Kayit listeleme, duzenleme, silme.
 
-### 7) Eğitimler Modülü
-- Seed verili eğitim listesi.
-- Detay ekranında okunabilir içerik.
+### 7) Trainings
+- Seed verili egitim listesi.
+- Detay icerik goruntuleme.
 
-### 8) Bilgi Paylaşımı Modülü
-- Konu listesi (beğeni + yorum sayısı).
-- Konu detayında:
-  - beğeni artırma
-  - yorum ekleme
+### 8) Info Sharing
+- Konu listesi (like + yorum sayisi).
+- Konu detayinda like ve yorum ekleme.
 
-### 9) Öneriler Modülü
-- Öneri listesi.
-- Beğen / beğenme tepkileri (anlık UI güncelleme + kalıcı veri).
+### 9) Suggestions
+- Like/dislike tepkileri.
+- Anlik UI guncelleme + kalicilik.
 
-### 10) Değerlendirme Modülü
-- 1-5 arası puan verme.
-- Kayıtların listelenmesi ve ortalama gösterimi.
+### 10) Ratings
+- 1-5 puan kaydetme.
+- Listeleme ve ortalama gosterimi.
 
-### 11) Profil ve Ayarlar
-- Karanlık mod aç/kapat.
-- Font ölçeği ayarı.
-- Accent renk seçimi.
-- Tüm verileri silme.
+### 11) Profile ve ayarlar
+- Dark mode, font scale, accent color.
+- Tum verileri sil.
+- Modula ozel veri sifirlama:
+  - reminders
+  - notes
+  - exercise
+  - medications
+  - symptoms
+  - ratings
 
-### 12) İlaç Takibi Modülü (Yeni)
-- İlaç ekleme/düzenleme/silme.
-- Her ilaç için zaman slotları:
+### 12) Medication Tracker
+- Ilac ekle/duzenle/sil.
+- Slot bazli takvim:
   - Morning
   - Noon
   - Evening
   - Night
-- Slot bazlı “alındı/alınmadı” işaretleme.
-- “Şu anki slotta alınması gereken ilaçlar” görünümü.
-- Arama + filtre:
+- Slot bazli alindi/alınmadi isaretleme.
+- Arama ve filtre:
   - All
   - Due Now
   - Completed Now
 
-### 13) Android Yerel Bildirimler (Yeni)
-- İlaç slotlarına göre günlük tekrarlayan yerel bildirim zamanlama.
-- Bildirime tıklayınca `Medications` ekranına yönlendirme.
-- Android izinleri:
-  - `POST_NOTIFICATIONS`
-  - `RECEIVE_BOOT_COMPLETED`
+### 13) Android yerel bildirimler
+- Slot saatlerine gore gunluk tekrar eden bildirim.
+- Bildirim aksiyonlari:
+  - Taken
+  - Snooze 10m
+- Bildirime basinca Medications ekranina yonlenir.
+- Sessiz saatler (quiet hours) destegi.
+- Ilac/slot/saat ayari degisince bildirimler otomatik yeniden planlanir.
 
-### 14) Uyum / Kaçırılan Doz İçgörüleri (Yeni)
-- Bugün kaçırılan slot sayısı.
-- Son 7 gün kaçırılan slot sayısı.
-- “En çok kaçırılan ilaç” kartı.
-- “En iyi uyum serisi” (streak) kartı.
+### 14) Uyum ve kacirilan doz icgoruleri
+- Bugun kacirilan slot sayisi.
+- Son 7 gun kacirilan slot sayisi.
+- En cok kacirilan ilac.
+- En iyi uyum serisi (streak).
 
-### 15) Semptom Trendleri Modülü (Yeni)
-- Günlük semptom girişi:
-  - ağrı
-  - yorgunluk
-  - uyku saati
-  - ruh hali
-  - not
-- Trend özeti (son girişler üzerinden).
-- Semptom listesi + silme.
-- Filtreleme:
-  - tarih aralığı (from/to)
-  - mood filtresi
+### 15) Symptom Trends
+- Gunluk semptom girisi:
+  - pain
+  - fatigue
+  - sleep hours
+  - mood
+  - note
+- Silme/listeleme.
+- Tarih araligi ve mood filtreleri.
+- Gecersiz tarih araligi engellenir.
+- Tarih girisi maskesi: `YYYY-MM-DD`.
 
-### 16) Semptom-İlaç Korelasyonu (Yeni)
-- İlaç uyumu yüksek/düşük günlere göre semptom karşılaştırması.
-- Sonuç kartı:
-  - daha iyi
-  - daha kötü
-  - karışık
-  - yetersiz veri
+### 16) Symptom-Medication correlation
+- Ilac uyumu yuksek/dusuk gunlerle semptom karsilastirma.
+- Sonuc karti:
+  - better
+  - worse
+  - mixed
+  - insufficient data
+- Confidence yuzdesi gosterilir.
 
-### 17) Sağlık Hedefleri + Rozetler (Yeni)
-- Profilde günlük hedefler:
-  - uyku saati hedefi
-  - egzersiz dakika hedefi
-  - max ağrı hedefi
-  - max yorgunluk hedefi
-- İlerleme göstergeleri (ring/progress görünümü).
-- Günlük başarı rozetleri (badge sistemi).
+### 17) Analytics polish
+- Home mini dashboard:
+  - due-now meds
+  - adherence today
+  - weekly symptom summary
+- Trend mini grafikleri (sparkline tarzinda barlar).
 
-## Proje Yapısı (Özet)
-- `src/navigation`: ekran yönlendirmeleri
-- `src/state`: context/store ve kalıcılık
-- `src/screens`: tüm modül ekranları
-- `src/components/ui`: tekrar kullanılabilir UI bileşenleri
+### 18) Health goals + badges
+- Gunluk hedefler:
+  - sleep target
+  - exercise target
+  - max pain
+  - max fatigue
+- Progress ring benzeri ilerleme gostergeleri.
+- Gunluk badge sistemi.
+
+### 19) Data quality ve guvenlik
+- Schema versioning + migration destegi.
+- Backup export (JSON).
+- Backup import (JSON) + format kontrolu.
+
+### 20) UX feedback
+- Basarili/kritik islemlerde toast/alert geri bildirimi.
+- Silme islemlerinde confirm dialog.
+- Uygulama yuklenirken loading placeholder.
+
+## Proje Yapisi (Ozet)
+- `src/navigation`: ekran yonlendirmeleri
+- `src/state`: context/store, selector, reducer
+- `src/screens`: tum ekranlar
+- `src/components/ui`: ortak UI bilesenleri
 - `src/services`: bildirim servisleri
+- `src/utils`: mask/feedback yardimcilari
+- `__tests__`: unit ve integration testler
 
-## Yerelde nasıl çalıştıracağım? Gerekli kurulum ayrıntıları (varsa)
+## Yerelde nasil calistiracagim? Gerekli kurulum ayrintilari (varsa)
 
-### Ön Koşullar
-- Node.js (projedeki sürüm gereksinimi: `>= 22.11.0`)
+### On kosullar
+- Node.js (`>= 22.11.0`)
 - npm
-- Android Studio + Android SDK + emülatör
+- Android Studio + Android SDK + emulator
 
 ### Kurulum
 ```bash
 npm install
 ```
 
-### Metro başlatma
+### Metro
 ```bash
 npm start
 ```
 
-### Android çalıştırma
+### Android calistirma
 ```bash
 npm run android
 ```
 
-Not:
-- Notifee eklendiği için ilk derlemede daha uzun sürebilir.
+### Not
+- Notifee native oldugu icin ilk derleme daha uzun surebilir.
 - Gerekirse temiz build:
 ```bash
 cd android
-./gradlew clean
+gradlew.bat clean
 cd ..
 npm run android
 ```
-(Windows’ta `gradlew.bat clean` kullanılabilir.)
 
-## Demo / Teslim Bölümü
+## Demo / Teslim Bolumu
 
-### Youtube listesi uygulama çalışıyorken çekilmiş kısa (max 1 dk) video
-- Video 1: Login -> Home -> modül geçişleri
-- Video 2: Reminders/Notes CRUD
-- Video 3: Medication slot takibi + bildirim örneği
-- Video 4: Symptom Trends + korelasyon kartı + filtreler
-- Video 5: Profile goals + badge + persistence
+### Youtube listedisi uygulama calisiyorken cekilmis kisa (max 1 dk) video
+Onerilen kisa video akislari:
+- Video 1: Login -> Home -> tum modul gecisleri
+- Video 2: Reminders/Notes CRUD + confirm + toast
+- Video 3: Medication slot takip + bildirim + taken/snooze
+- Video 4: Symptom filtre + trend + correlation confidence
+- Video 5: Profile goals + badge + backup export/import
 
-`Buraya YouTube playlist linkini ekleyin:`
+Playlist linki:
 - `https://youtube.com/playlist?list=...`
 
-### APK dosyaları
-- Android APK: `Buraya APK paylaşım linki ekleyin`
+### APK/IPA dosyalari
+Bu projede sadece Android hedeflenmistir.
+- Android APK: `Buraya APK linki ekleyin`
 
-Önerilen paylaşım:
-- Google Drive / OneDrive / GitHub Releases
-
-## Bilinen Notlar
-- Uygulama yerel veri ile çalışır; backend zorunlu değildir.
-- Bazı lint uyarıları kod kalitesini etkilemeyen stil uyarılarıdır.
-
-## Geliştirme Komutları
+## Gelistirme komutlari
 ```bash
 npm run lint
 npx tsc --noEmit
+npm test -- --watch=false
 ```
 
-## Uygulama Adı
+## Test kapsamı
+- Unit test:
+  - adherence
+  - missed-dose insight
+  - correlation/insufficient-data durumlari
+- Integration test:
+  - add med -> notification plan -> mark taken
+
+## Uygulama adi
 - MedTracker

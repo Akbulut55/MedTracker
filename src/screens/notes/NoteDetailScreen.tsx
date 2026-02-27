@@ -7,6 +7,7 @@ import { COLORS, SPACING } from '../../app/theme';
 import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { AppButton } from '../../components/ui/AppButton';
+import { confirmAction, showSuccess } from '../../utils/feedback';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'NoteDetail'>;
 
@@ -37,10 +38,13 @@ export function NoteDetailScreen({ route, navigation }: Props) {
               <AppButton
                 title="Delete"
                 variant="danger"
-                onPress={() => {
-                  deleteNote(note.id);
-                  navigation.goBack();
-                }}
+                onPress={() =>
+                  confirmAction('Delete note', `${note.title} silinsin mi?`, () => {
+                    deleteNote(note.id);
+                    showSuccess('Note deleted.');
+                    navigation.goBack();
+                  })
+                }
               />
             </View>
           </View>

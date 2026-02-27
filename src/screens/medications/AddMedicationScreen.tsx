@@ -7,6 +7,7 @@ import { COLORS } from '../../app/theme';
 import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { AppButton } from '../../components/ui/AppButton';
+import { showSuccess } from '../../utils/feedback';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AddMedication'>;
 const SLOTS: MedicationSlot[] = ['Morning', 'Noon', 'Evening', 'Night'];
@@ -18,6 +19,7 @@ export function AddMedicationScreen({ navigation }: Props) {
   const [frequency, setFrequency] = useState('');
   const [slots, setSlots] = useState<MedicationSlot[]>(['Morning']);
   const valid = name.trim().length > 0 && dose.trim().length > 0 && frequency.trim().length > 0 && slots.length > 0;
+  const showErrors = !valid;
 
   const toggleSlot = (slot: MedicationSlot) => {
     setSlots(prev => (prev.includes(slot) ? prev.filter(s => s !== slot) : [...prev, slot]));
@@ -28,12 +30,15 @@ export function AddMedicationScreen({ navigation }: Props) {
       <AppCard>
         <Text style={styles.label}>Medication name</Text>
         <TextInput value={name} onChangeText={setName} style={styles.input} />
+        {showErrors && !name.trim() ? <Text style={styles.error}>Name is required.</Text> : null}
 
         <Text style={[styles.label, styles.spaced]}>Dose</Text>
         <TextInput value={dose} onChangeText={setDose} style={styles.input} placeholder="e.g. 10mg" />
+        {showErrors && !dose.trim() ? <Text style={styles.error}>Dose is required.</Text> : null}
 
         <Text style={[styles.label, styles.spaced]}>Frequency</Text>
         <TextInput value={frequency} onChangeText={setFrequency} style={styles.input} placeholder="e.g. 2 times/day" />
+        {showErrors && !frequency.trim() ? <Text style={styles.error}>Frequency is required.</Text> : null}
 
         <Text style={[styles.label, styles.spaced]}>Reminder time slots</Text>
         <View style={styles.row}>
@@ -43,6 +48,7 @@ export function AddMedicationScreen({ navigation }: Props) {
             </Pressable>
           ))}
         </View>
+        {showErrors && slots.length === 0 ? <Text style={styles.error}>Choose at least one slot.</Text> : null}
 
         <Text style={styles.spaced} />
         <AppButton
@@ -50,6 +56,7 @@ export function AddMedicationScreen({ navigation }: Props) {
           disabled={!valid}
           onPress={() => {
             addMedication(name.trim(), dose.trim(), frequency.trim(), slots);
+            showSuccess('Medication added.');
             navigation.goBack();
           }}
         />
@@ -82,4 +89,5 @@ const styles = StyleSheet.create({
   pillOn: { backgroundColor: COLORS.brand, borderColor: COLORS.brand },
   pillTxt: { color: COLORS.text, fontWeight: '800' },
   pillTxtOn: { color: 'white' },
+  error: { marginTop: 6, color: COLORS.danger, fontWeight: '700' },
 });

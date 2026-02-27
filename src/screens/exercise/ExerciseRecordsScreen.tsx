@@ -8,6 +8,7 @@ import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { AppButton } from '../../components/ui/AppButton';
+import { confirmAction, showSuccess } from '../../utils/feedback';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ExerciseRecords'>;
 
@@ -34,7 +35,16 @@ export function ExerciseRecordsScreen({ navigation }: Props) {
                 <AppButton title="Edit" variant="secondary" onPress={() => navigation.navigate('EditExercise', { id: item.id })} />
               </View>
               <View style={styles.col}>
-                <AppButton title="Delete" variant="danger" onPress={() => deleteExerciseEntry(item.id)} />
+                <AppButton
+                  title="Delete"
+                  variant="danger"
+                  onPress={() =>
+                    confirmAction('Delete record', 'Bu kayit silinsin mi?', () => {
+                      deleteExerciseEntry(item.id);
+                      showSuccess('Record deleted.');
+                    })
+                  }
+                />
               </View>
             </View>
           </AppCard>

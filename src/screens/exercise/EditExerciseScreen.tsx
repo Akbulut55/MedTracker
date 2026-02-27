@@ -7,6 +7,7 @@ import { COLORS } from '../../app/theme';
 import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { AppButton } from '../../components/ui/AppButton';
+import { showSuccess } from '../../utils/feedback';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'EditExercise'>;
 const TYPES = ['No exercise', 'Walk', 'Swim', 'Bike', 'Yoga', 'Other'];
@@ -37,12 +38,15 @@ export function EditExerciseScreen({ navigation, route }: Props) {
       <AppCard>
         <Text style={styles.label}>Vegetables (grams)</Text>
         <TextInput value={veg} onChangeText={setVeg} keyboardType="numeric" style={styles.input} />
+        {!veg.trim() ? <Text style={styles.error}>Vegetable grams are required.</Text> : null}
 
         <Text style={[styles.label, styles.spaced]}>Fruits (grams)</Text>
         <TextInput value={fruit} onChangeText={setFruit} keyboardType="numeric" style={styles.input} />
+        {!fruit.trim() ? <Text style={styles.error}>Fruit grams are required.</Text> : null}
 
         <Text style={[styles.label, styles.spaced]}>Exercise minutes</Text>
         <TextInput value={minutes} onChangeText={setMinutes} keyboardType="numeric" style={styles.input} />
+        {!minutes.trim() ? <Text style={styles.error}>Minutes are required.</Text> : null}
 
         <Text style={[styles.label, styles.spaced]}>Exercise type</Text>
         <View style={styles.typeWrap}>
@@ -63,6 +67,7 @@ export function EditExerciseScreen({ navigation, route }: Props) {
           disabled={!valid}
           onPress={() => {
             updateExerciseEntry(entry.id, Number(veg), Number(fruit), Number(minutes), types, feltBad);
+            showSuccess('Exercise record updated.');
             navigation.goBack();
           }}
         />
@@ -88,6 +93,7 @@ const styles = StyleSheet.create({
   choiceOn: { backgroundColor: COLORS.brand, borderColor: COLORS.brand },
   choiceTxt: { fontWeight: '800', color: COLORS.text },
   choiceTxtOn: { color: 'white' },
+  error: { marginTop: 6, color: COLORS.danger, fontWeight: '700' },
   notFoundWrap: { flex: 1, backgroundColor: COLORS.bg, alignItems: 'center', justifyContent: 'center' },
   notFoundTxt: { color: COLORS.muted },
 });

@@ -8,6 +8,7 @@ import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { AppButton } from '../../components/ui/AppButton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { confirmAction, showSuccess } from '../../utils/feedback';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Medications'>;
 type StatusFilter = 'All' | 'Due Now' | 'Completed Now';
@@ -105,7 +106,16 @@ export function MedicationsScreen({ navigation }: Props) {
                   <AppButton title="Edit" variant="secondary" onPress={() => navigation.navigate('EditMedication', { id: item.id })} />
                 </View>
                 <View style={styles.col}>
-                  <AppButton title="Delete" variant="danger" onPress={() => deleteMedication(item.id)} />
+                  <AppButton
+                    title="Delete"
+                    variant="danger"
+                    onPress={() =>
+                      confirmAction('Delete medication', `${item.name} silinsin mi?`, () => {
+                        deleteMedication(item.id);
+                        showSuccess('Medication deleted.');
+                      })
+                    }
+                  />
                 </View>
               </View>
             </AppCard>

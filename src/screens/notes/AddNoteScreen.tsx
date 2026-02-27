@@ -7,6 +7,7 @@ import { COLORS } from '../../app/theme';
 import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { AppButton } from '../../components/ui/AppButton';
+import { showSuccess } from '../../utils/feedback';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'AddNote'>;
 
@@ -21,9 +22,11 @@ export function AddNoteScreen({ navigation }: Props) {
       <AppCard>
         <Text style={styles.label}>Title</Text>
         <TextInput value={title} onChangeText={setTitle} style={styles.input} />
+        {!title.trim() ? <Text style={styles.error}>Title is required.</Text> : null}
 
         <Text style={[styles.label, styles.spaced]}>Content</Text>
         <TextInput value={content} onChangeText={setContent} style={[styles.input, styles.multi]} multiline />
+        {!content.trim() ? <Text style={styles.error}>Content is required.</Text> : null}
 
         <Text style={styles.spaced} />
         <AppButton
@@ -31,6 +34,7 @@ export function AddNoteScreen({ navigation }: Props) {
           disabled={!valid}
           onPress={() => {
             addNote(title.trim(), content.trim());
+            showSuccess('Note added.');
             navigation.goBack();
           }}
         />
@@ -52,4 +56,5 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   multi: { minHeight: 140, textAlignVertical: 'top' },
+  error: { marginTop: 6, color: COLORS.danger, fontWeight: '700' },
 });

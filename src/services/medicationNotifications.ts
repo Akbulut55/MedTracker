@@ -1,26 +1,10 @@
 import notifee, { AndroidImportance, RepeatFrequency, TimestampTrigger, TriggerType } from '@notifee/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Medication, MedicationSlot } from '../state/DataContext';
+import { buildNotificationPlan, NotificationConfig } from './notificationPlanning';
 
-const CHANNEL_ID = 'medtracker-medications';
+export const CHANNEL_ID = 'medtracker-medications';
 const IDS_KEY = 'medtracker_notification_ids_v1';
-
-const SLOT_HOURS: Record<MedicationSlot, number> = {
-  Morning: 8,
-  Noon: 12,
-  Evening: 18,
-  Night: 22,
-};
-
-const slotTimeMs = (slot: MedicationSlot) => {
-  const now = new Date();
-  const at = new Date();
-  at.setHours(SLOT_HOURS[slot], 0, 0, 0);
-  if (at.getTime() <= now.getTime()) at.setDate(at.getDate() + 1);
-  return at.getTime();
-};
-
-const notifId = (medId: string, slot: MedicationSlot) => `med_${medId}_${slot}`;
 
 export async function initMedicationNotifications() {
   await notifee.requestPermission();
@@ -31,33 +15,54 @@ export async function initMedicationNotifications() {
   });
 }
 
-export async function syncMedicationNotifications(medications: Medication[]) {
-  await initMedicationNotifications();
+export async function scheduleSnoozeNotification(medicationName: string, dose: string, slot: MedicationSlot, medicationId: string) {
+  const trigger: TimestampTrigger = {
+    type: TriggerType.TIMESTAMP,
+    timestamp: Date.now() + 10 * 60 * 1000,
+  };
+  await notifee.createTriggerNotification(
+    {
+      id: `snooze_${medicationId}_${slot}_${Date.now()}`,
+      title: `Medication Snooze (${slot})`,
+      body: `${medicationName} - ${dose}`,
+      android: {
+        channelId: CHANNEL_ID,
+        pressAction: { id: 'default' },
+      },
+      data: { screen: 'Medications', medicationId, slot },
+    },
+    trigger,
+  );
+}
 
-  const desiredIds: string[] = [];
-  for (const m of medications) {
-    for (const slot of m.slots) {
-      const id = notifId(m.id, slot);
-      desiredIds.push(id);
-      const trigger: TimestampTrigger = {
-        type: TriggerType.TIMESTAMP,
-        timestamp: slotTimeMs(slot),
-        repeatFrequency: RepeatFrequency.DAILY,
-      };
-      await notifee.createTriggerNotification(
-        {
-          id,
-          title: `Medication Reminder (${slot})`,
-          body: `${m.name} - ${m.dose}`,
-          android: {
-            channelId: CHANNEL_ID,
-            pressAction: { id: 'default' },
-          },
-          data: { screen: 'Medications' },
+export async function syncMedicationNotifications(medications: Medication[], config: NotificationConfig) {
+  await initMedicationNotifications();
+  const plan = buildNotificationPlan(medications, config);
+  const desiredIds = plan.map(x => x.id);
+
+  for (const item of plan) {
+    const trigger: TimestampTrigger = {
+      type: TriggerType.TIMESTAMP,
+      timestamp: item.timestamp,
+      repeatFrequency: RepeatFrequency.DAILY,
+    };
+    await notifee.createTriggerNotification(
+      {
+        id: item.id,
+        title: item.title,
+        body: item.body,
+        android: {
+          channelId: CHANNEL_ID,
+          pressAction: { id: 'default' },
+          actions: [
+            { title: 'Taken', pressAction: { id: 'taken' } },
+            { title: 'Snooze 10m', pressAction: { id: 'snooze' } },
+          ],
         },
-        trigger,
-      );
-    }
+        data: { screen: 'Medications', medicationId: item.medicationId, slot: item.slot },
+      },
+      trigger,
+    );
   }
 
   const raw = await AsyncStorage.getItem(IDS_KEY);

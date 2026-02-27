@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { syncMedicationNotifications } from '../services/medicationNotifications';
 
 export type Training = { id: string; title: string; summary: string; body: string };
 export type Reminder = { id: string; title: string; detail: string; module: string; createdAt: string };
@@ -51,6 +50,21 @@ type PersistedData = {
   ratings: Rating[];
 };
 
+type PersistEnvelope = {
+  version: number;
+  data: PersistedData;
+};
+
+type ResetModuleKey =
+  | 'reminders'
+  | 'notes'
+  | 'exercise'
+  | 'medications'
+  | 'symptoms'
+  | 'ratings'
+  | 'suggestions'
+  | 'topics';
+
 type DataCtx = {
   trainings: Training[];
   reminders: Reminder[];
@@ -90,11 +104,15 @@ type DataCtx = {
   addComment: (topicId: string, author: string, text: string) => void;
 
   addRating: (user: string, stars: number) => void;
+  resetModuleData: (module: ResetModuleKey) => void;
+  exportBackupJSON: () => string;
+  importBackupJSON: (raw: string) => { ok: true } | { ok: false; error: string };
   clearAllData: () => void;
 };
 
 const Ctx = createContext<DataCtx | null>(null);
 const STORAGE_KEY = 'medtracker_data_v1';
+const DATA_SCHEMA_VERSION = 2;
 
 const makeId = (prefix: string) => `${prefix}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 const toDateKey = (value = new Date()) => value.toISOString().slice(0, 10);
@@ -161,28 +179,50 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
+  const buildPersisted = React.useCallback(
+    (): PersistedData => ({ reminders, notes, exercise, medications, symptoms, suggestions, topics, ratings }),
+    [reminders, notes, exercise, medications, symptoms, suggestions, topics, ratings],
+  );
+
+  const applyPersisted = React.useCallback((source: PersistedData) => {
+    setReminders(source.reminders ?? []);
+    setNotes(source.notes ?? []);
+    setExercise((source.exercise ?? []).map(e => ({ ...e, dateKey: coerceDateKey(e.dateKey ?? e.date) })));
+    setMedications(
+      (source.medications ?? []).map(m => {
+        const existingSlots = (m.slots ?? []).filter(isMedicationSlot);
+        const slotKeys = m.takenSlotKeys?.length
+          ? m.takenSlotKeys
+          : (m as Medication & { takenDates?: string[] }).takenDates?.map(d => `${d}|Morning`) ?? [];
+        return { ...m, slots: existingSlots.length ? existingSlots : ['Morning'], takenSlotKeys: slotKeys };
+      }),
+    );
+    setSymptoms((source.symptoms ?? []).map(s => ({ ...s, dateKey: coerceDateKey(s.dateKey ?? s.date) })));
+    setSuggestions(source.suggestions?.length ? source.suggestions : seedSuggestions);
+    setTopics(source.topics?.length ? source.topics : seedTopics);
+    setRatings(source.ratings ?? []);
+  }, []);
+
   React.useEffect(() => {
     const load = async () => {
       try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
         if (raw) {
-          const parsed: PersistedData = JSON.parse(raw);
-          setReminders(parsed.reminders ?? []);
-          setNotes(parsed.notes ?? []);
-          setExercise((parsed.exercise ?? []).map(e => ({ ...e, dateKey: coerceDateKey(e.dateKey ?? e.date) })));
-          setMedications(
-            (parsed.medications ?? []).map(m => {
-              const existingSlots = (m.slots ?? []).filter(isMedicationSlot);
-              const slotKeys = m.takenSlotKeys?.length
-                ? m.takenSlotKeys
-                : (m as Medication & { takenDates?: string[] }).takenDates?.map(d => `${d}|Morning`) ?? [];
-              return { ...m, slots: existingSlots.length ? existingSlots : ['Morning'], takenSlotKeys: slotKeys };
-            }),
-          );
-          setSymptoms((parsed.symptoms ?? []).map(s => ({ ...s, dateKey: coerceDateKey(s.dateKey ?? s.date) })));
-          setSuggestions(parsed.suggestions?.length ? parsed.suggestions : seedSuggestions);
-          setTopics(parsed.topics?.length ? parsed.topics : seedTopics);
-          setRatings(parsed.ratings ?? []);
+          const parsed = JSON.parse(raw) as PersistEnvelope | PersistedData;
+          const migrated: PersistedData =
+            'version' in parsed && 'data' in parsed
+              ? parsed.data
+              : {
+                  reminders: (parsed as PersistedData).reminders ?? [],
+                  notes: (parsed as PersistedData).notes ?? [],
+                  exercise: (parsed as PersistedData).exercise ?? [],
+                  medications: (parsed as PersistedData).medications ?? [],
+                  symptoms: (parsed as PersistedData).symptoms ?? [],
+                  suggestions: (parsed as PersistedData).suggestions ?? [],
+                  topics: (parsed as PersistedData).topics ?? [],
+                  ratings: (parsed as PersistedData).ratings ?? [],
+                };
+          applyPersisted(migrated);
         }
       } catch {
         // Keep defaults on parse/read failure.
@@ -191,18 +231,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
     };
     load();
-  }, []);
+  }, [applyPersisted]);
 
   React.useEffect(() => {
     if (!hydrated) return;
-    const toSave: PersistedData = { reminders, notes, exercise, medications, symptoms, suggestions, topics, ratings };
+    const toSave: PersistEnvelope = { version: DATA_SCHEMA_VERSION, data: buildPersisted() };
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave)).catch(() => {});
-  }, [hydrated, reminders, notes, exercise, medications, symptoms, suggestions, topics, ratings]);
-
-  React.useEffect(() => {
-    if (!hydrated) return;
-    syncMedicationNotifications(medications).catch(() => {});
-  }, [hydrated, medications]);
+  }, [hydrated, buildPersisted]);
 
   const value = useMemo<DataCtx>(
     () => ({
@@ -300,6 +335,42 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setRatings(prev => [{ id: makeId('g'), user, stars, createdAt: new Date().toLocaleString() }, ...prev]);
       },
 
+      resetModuleData: module => {
+        if (module === 'reminders') setReminders([]);
+        if (module === 'notes') setNotes([]);
+        if (module === 'exercise') setExercise([]);
+        if (module === 'medications') setMedications([]);
+        if (module === 'symptoms') setSymptoms([]);
+        if (module === 'ratings') setRatings([]);
+        if (module === 'suggestions') setSuggestions(seedSuggestions);
+        if (module === 'topics') setTopics(seedTopics);
+      },
+
+      exportBackupJSON: () => JSON.stringify({ version: DATA_SCHEMA_VERSION, data: buildPersisted() }, null, 2),
+
+      importBackupJSON: (raw: string) => {
+        try {
+          const parsed = JSON.parse(raw) as PersistEnvelope | PersistedData;
+          const data: PersistedData =
+            'version' in parsed && 'data' in parsed
+              ? parsed.data
+              : {
+                  reminders: (parsed as PersistedData).reminders ?? [],
+                  notes: (parsed as PersistedData).notes ?? [],
+                  exercise: (parsed as PersistedData).exercise ?? [],
+                  medications: (parsed as PersistedData).medications ?? [],
+                  symptoms: (parsed as PersistedData).symptoms ?? [],
+                  suggestions: (parsed as PersistedData).suggestions ?? [],
+                  topics: (parsed as PersistedData).topics ?? [],
+                  ratings: (parsed as PersistedData).ratings ?? [],
+                };
+          applyPersisted(data);
+          return { ok: true };
+        } catch {
+          return { ok: false, error: 'Invalid JSON backup format.' };
+        }
+      },
+
       clearAllData: () => {
         setReminders([]);
         setNotes([]);
@@ -311,7 +382,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setTopics(seedTopics);
       },
     }),
-    [trainings, reminders, notes, exercise, medications, symptoms, suggestions, topics, ratings, hydrated],
+    [trainings, reminders, notes, exercise, medications, symptoms, suggestions, topics, ratings, hydrated, buildPersisted, applyPersisted],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
