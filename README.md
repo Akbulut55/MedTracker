@@ -1,7 +1,7 @@
 # MedTracker
 
 MedTracker, React Native ile geliştirilmiş bir mobil sağlık takip uygulamasıdır.  
-Uygulama Android (emülatör/cihaz) ve iOS (simülatör/cihaz) hedefleriyle hazırlanmıştır.
+Uygulama Android (emülatör/cihaz) hedefiyle hazırlanmıştır.
 
 ## Teknoloji Yığını
 - React Native (`0.84.0`)
@@ -152,7 +152,6 @@ Uygulama giriş sonrası ana menüden modüllere geçiş sağlar. Tüm temel ver
 - Node.js (projedeki sürüm gereksinimi: `>= 22.11.0`)
 - npm
 - Android Studio + Android SDK + emülatör
-- (iOS için) Xcode + CocoaPods (macOS)
 
 ### Kurulum
 ```bash
@@ -180,15 +179,6 @@ npm run android
 ```
 (Windows’ta `gradlew.bat clean` kullanılabilir.)
 
-### iOS çalıştırma (macOS)
-```bash
-cd ios
-bundle install
-bundle exec pod install
-cd ..
-npm run ios
-```
-
 ## Demo / Teslim Bölümü
 
 ### Youtube listesi uygulama çalışıyorken çekilmiş kısa (max 1 dk) video
@@ -201,9 +191,8 @@ npm run ios
 `Buraya YouTube playlist linkini ekleyin:`
 - `https://youtube.com/playlist?list=...`
 
-### APK/IPA dosyaları
+### APK dosyaları
 - Android APK: `Buraya APK paylaşım linki ekleyin`
-- iOS IPA: `Buraya IPA/TestFlight linki ekleyin`
 
 Önerilen paylaşım:
 - Google Drive / OneDrive / GitHub Releases
