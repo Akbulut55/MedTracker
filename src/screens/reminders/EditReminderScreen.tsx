@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../../navigation/AppNavigator';
 import { useData } from '../../state/DataContext';
@@ -8,14 +8,18 @@ import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { AppButton } from '../../components/ui/AppButton';
 
-type Props = NativeStackScreenProps<AppStackParamList, 'AddReminder'>;
+type Props = NativeStackScreenProps<AppStackParamList, 'EditReminder'>;
 
-export function AddReminderScreen({ navigation }: Props) {
-  const { addReminder } = useData();
-  const [title, setTitle] = useState('');
-  const [detail, setDetail] = useState('');
-  const [module, setModule] = useState('');
-  const valid = title.trim().length > 0 && detail.trim().length > 0;
+export function EditReminderScreen({ navigation, route }: Props) {
+  const { reminders, updateReminder } = useData();
+  const reminder = useMemo(() => reminders.find(r => r.id === route.params.id), [reminders, route.params.id]);
+
+  const [title, setTitle] = useState(reminder?.title ?? '');
+  const [detail, setDetail] = useState(reminder?.detail ?? '');
+  const [module, setModule] = useState(reminder?.module ?? '');
+  const valid = title.trim().length > 0 && detail.trim().length > 0 && !!reminder;
+
+  if (!reminder) return <View style={styles.notFoundWrap}><Text style={styles.notFoundTxt}>Reminder not found.</Text></View>;
 
   return (
     <ScreenContainer padded>
@@ -31,12 +35,12 @@ export function AddReminderScreen({ navigation }: Props) {
 
         <Text style={styles.spaced} />
         <AppButton
-          title="Save"
-          disabled={!valid}
+          title="Save Changes"
           onPress={() => {
-            addReminder(title.trim(), detail.trim(), module.trim() || undefined);
+            updateReminder(reminder.id, title.trim(), detail.trim(), module.trim() || undefined);
             navigation.goBack();
           }}
+          disabled={!valid}
         />
       </AppCard>
     </ScreenContainer>
@@ -56,4 +60,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   multi: { minHeight: 100, textAlignVertical: 'top' },
+  notFoundWrap: { flex: 1, backgroundColor: COLORS.bg, alignItems: 'center', justifyContent: 'center' },
+  notFoundTxt: { color: COLORS.muted },
 });

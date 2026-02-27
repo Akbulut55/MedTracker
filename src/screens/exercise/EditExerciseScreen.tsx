@@ -8,28 +8,29 @@ import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { AppButton } from '../../components/ui/AppButton';
 
-type Props = NativeStackScreenProps<AppStackParamList, 'Exercise'>;
+type Props = NativeStackScreenProps<AppStackParamList, 'EditExercise'>;
 const TYPES = ['No exercise', 'Walk', 'Swim', 'Bike', 'Yoga', 'Other'];
 
-export function ExerciseScreen({ navigation }: Props) {
-  const { addExerciseEntry } = useData();
-  const [veg, setVeg] = useState('');
-  const [fruit, setFruit] = useState('');
-  const [minutes, setMinutes] = useState('');
-  const [types, setTypes] = useState<string[]>([]);
-  const [feltBad, setFeltBad] = useState(false);
+export function EditExerciseScreen({ navigation, route }: Props) {
+  const { exercise, updateExerciseEntry } = useData();
+  const entry = useMemo(() => exercise.find(x => x.id === route.params.id), [exercise, route.params.id]);
+  const [veg, setVeg] = useState(String(entry?.vegGrams ?? ''));
+  const [fruit, setFruit] = useState(String(entry?.fruitGrams ?? ''));
+  const [minutes, setMinutes] = useState(String(entry?.minutes ?? ''));
+  const [types, setTypes] = useState<string[]>(entry?.types ?? []);
+  const [feltBad, setFeltBad] = useState(entry?.feltBad ?? false);
 
   const toggle = (t: string) => setTypes(prev => (prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]));
-  const valid = useMemo(
-    () =>
-      veg.trim().length > 0 &&
-      fruit.trim().length > 0 &&
-      minutes.trim().length > 0 &&
-      Number(veg) >= 0 &&
-      Number(fruit) >= 0 &&
-      Number(minutes) >= 0,
-    [veg, fruit, minutes],
-  );
+  const valid =
+    !!entry &&
+    veg.trim().length > 0 &&
+    fruit.trim().length > 0 &&
+    minutes.trim().length > 0 &&
+    Number(veg) >= 0 &&
+    Number(fruit) >= 0 &&
+    Number(minutes) >= 0;
+
+  if (!entry) return <View style={styles.notFoundWrap}><Text style={styles.notFoundTxt}>Record not found.</Text></View>;
 
   return (
     <ScreenContainer padded>
@@ -43,7 +44,7 @@ export function ExerciseScreen({ navigation }: Props) {
         <Text style={[styles.label, styles.spaced]}>Exercise minutes</Text>
         <TextInput value={minutes} onChangeText={setMinutes} keyboardType="numeric" style={styles.input} />
 
-        <Text style={[styles.label, styles.spaced]}>Exercise type (multi-select)</Text>
+        <Text style={[styles.label, styles.spaced]}>Exercise type</Text>
         <View style={styles.typeWrap}>
           {TYPES.map(t => (
             <Pressable key={t} onPress={() => toggle(t)} style={[styles.choice, types.includes(t) && styles.choiceOn]}>
@@ -58,15 +59,13 @@ export function ExerciseScreen({ navigation }: Props) {
 
         <Text style={styles.spaced} />
         <AppButton
-          title="Save"
+          title="Save Changes"
           disabled={!valid}
           onPress={() => {
-            addExerciseEntry(Number(veg), Number(fruit), Number(minutes), types, feltBad);
-            navigation.navigate('ExerciseRecords');
+            updateExerciseEntry(entry.id, Number(veg), Number(fruit), Number(minutes), types, feltBad);
+            navigation.goBack();
           }}
         />
-        <Text style={styles.smallGap} />
-        <AppButton title="View Records" variant="secondary" onPress={() => navigation.navigate('ExerciseRecords')} />
       </AppCard>
     </ScreenContainer>
   );
@@ -75,7 +74,6 @@ export function ExerciseScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   label: { fontWeight: '800', color: COLORS.muted },
   spaced: { marginTop: 10 },
-  smallGap: { marginTop: 8 },
   input: {
     marginTop: 6,
     borderWidth: 1,
@@ -90,4 +88,6 @@ const styles = StyleSheet.create({
   choiceOn: { backgroundColor: COLORS.brand, borderColor: COLORS.brand },
   choiceTxt: { fontWeight: '800', color: COLORS.text },
   choiceTxtOn: { color: 'white' },
+  notFoundWrap: { flex: 1, backgroundColor: COLORS.bg, alignItems: 'center', justifyContent: 'center' },
+  notFoundTxt: { color: COLORS.muted },
 });

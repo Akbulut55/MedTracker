@@ -11,6 +11,8 @@ type HomeRoute =
   | 'Reminders'
   | 'Trainings'
   | 'Notes'
+  | 'Medications'
+  | 'Symptoms'
   | 'InfoShare'
   | 'Suggestions'
   | 'Exercise'
@@ -22,6 +24,8 @@ const MENU: { key: HomeRoute; title: string; icon: string }[] = [
   { key: 'Reminders', title: 'Reminders', icon: 'R' },
   { key: 'Trainings', title: 'Trainings', icon: 'T' },
   { key: 'Notes', title: 'Notes', icon: 'N' },
+  { key: 'Medications', title: 'Medications', icon: 'M' },
+  { key: 'Symptoms', title: 'Symptoms', icon: 'Y' },
   { key: 'InfoShare', title: 'Info Sharing', icon: 'I' },
   { key: 'Suggestions', title: 'Suggestions', icon: 'S' },
   { key: 'Exercise', title: 'Nutrition & Exercise', icon: 'E' },

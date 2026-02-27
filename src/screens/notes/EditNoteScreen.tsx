@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../../navigation/AppNavigator';
 import { useData } from '../../state/DataContext';
@@ -8,13 +8,16 @@ import { ScreenContainer } from '../../components/ui/ScreenContainer';
 import { AppCard } from '../../components/ui/AppCard';
 import { AppButton } from '../../components/ui/AppButton';
 
-type Props = NativeStackScreenProps<AppStackParamList, 'AddNote'>;
+type Props = NativeStackScreenProps<AppStackParamList, 'EditNote'>;
 
-export function AddNoteScreen({ navigation }: Props) {
-  const { addNote } = useData();
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const valid = title.trim().length > 0 && content.trim().length > 0;
+export function EditNoteScreen({ navigation, route }: Props) {
+  const { notes, updateNote } = useData();
+  const note = useMemo(() => notes.find(n => n.id === route.params.id), [notes, route.params.id]);
+  const [title, setTitle] = useState(note?.title ?? '');
+  const [content, setContent] = useState(note?.content ?? '');
+  const valid = title.trim().length > 0 && content.trim().length > 0 && !!note;
+
+  if (!note) return <View style={styles.notFoundWrap}><Text style={styles.notFoundTxt}>Note not found.</Text></View>;
 
   return (
     <ScreenContainer padded>
@@ -27,12 +30,12 @@ export function AddNoteScreen({ navigation }: Props) {
 
         <Text style={styles.spaced} />
         <AppButton
-          title="Save"
-          disabled={!valid}
+          title="Save Changes"
           onPress={() => {
-            addNote(title.trim(), content.trim());
+            updateNote(note.id, title.trim(), content.trim());
             navigation.goBack();
           }}
+          disabled={!valid}
         />
       </AppCard>
     </ScreenContainer>
@@ -51,5 +54,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
-  multi: { minHeight: 140, textAlignVertical: 'top' },
+  multi: { minHeight: 150, textAlignVertical: 'top' },
+  notFoundWrap: { flex: 1, backgroundColor: COLORS.bg, alignItems: 'center', justifyContent: 'center' },
+  notFoundTxt: { color: COLORS.muted },
 });

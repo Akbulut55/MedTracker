@@ -11,6 +11,8 @@ export function HelpScreen() {
         <Text style={styles.t}>- Trainings: read-only educational content</Text>
         <Text style={styles.t}>- Reminders: add/delete reminder cards</Text>
         <Text style={styles.t}>- Notes: add/open/delete notes</Text>
+        <Text style={styles.t}>- Medications: add/edit/delete + daily taken status</Text>
+        <Text style={styles.t}>- Symptom Trends: log pain/fatigue/sleep/mood and see trend summary</Text>
         <Text style={styles.t}>- Exercise: save and review nutrition/exercise records</Text>
         <Text style={styles.t}>- Info Sharing: like topics and add comments</Text>
         <Text style={styles.t}>- Suggestions: react with like/dislike</Text>
