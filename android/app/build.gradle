@@ -7,6 +7,10 @@ apply plugin: "com.facebook.react"
  * By default you don't need to apply any configuration, just uncomment the lines you need.
  */
 react {
+    // RN 0.84 new architecture uses Hermes runtime by default.
+    // Disable automatic .so cleanup so Hermes libs are not stripped from release APK.
+    enableSoCleanup = false
+
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
     // root = file("../../")
@@ -110,10 +114,8 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-
-    if (hermesEnabled.toBoolean()) {
-        implementation("com.facebook.react:hermes-android")
-    } else {
-        implementation jscFlavor
-    }
+    // RN 0.84 DefaultReactHost initializes Hermes runtime in New Architecture.
+    // Keep Hermes native libs packaged to avoid startup crash:
+    // "couldn't find DSO to load: libhermestooling.so".
+    implementation("com.facebook.react:hermes-android")
 }

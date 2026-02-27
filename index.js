@@ -12,23 +12,27 @@ import { scheduleSnoozeNotification } from './src/services/medicationNotificatio
 const PENDING_ACTIONS_KEY = 'medtracker_pending_actions_v1';
 
 notifee.onBackgroundEvent(async ({ type, detail }) => {
-  if (type !== EventType.ACTION_PRESS) return;
-  const action = detail.pressAction?.id;
-  const medicationId = detail.notification?.data?.medicationId;
-  const slot = detail.notification?.data?.slot;
-  const body = detail.notification?.body ?? '';
-  const [namePart, dosePart] = body.split(' - ');
+  try {
+    if (type !== EventType.ACTION_PRESS) return;
+    const action = detail.pressAction?.id;
+    const medicationId = detail.notification?.data?.medicationId;
+    const slot = detail.notification?.data?.slot;
+    const body = detail.notification?.body ?? '';
+    const [namePart, dosePart] = body.split(' - ');
 
-  if (action === 'snooze' && medicationId && slot && namePart && dosePart) {
-    await scheduleSnoozeNotification(namePart, dosePart, slot, medicationId);
-    return;
-  }
+    if (action === 'snooze' && medicationId && slot && namePart && dosePart) {
+      await scheduleSnoozeNotification(namePart, dosePart, slot, medicationId);
+      return;
+    }
 
-  if (action === 'taken' && medicationId && slot) {
-    const raw = await AsyncStorage.getItem(PENDING_ACTIONS_KEY);
-    const list = raw ? JSON.parse(raw) : [];
-    list.push({ action, medicationId, slot });
-    await AsyncStorage.setItem(PENDING_ACTIONS_KEY, JSON.stringify(list));
+    if (action === 'taken' && medicationId && slot) {
+      const raw = await AsyncStorage.getItem(PENDING_ACTIONS_KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      list.push({ action, medicationId, slot });
+      await AsyncStorage.setItem(PENDING_ACTIONS_KEY, JSON.stringify(list));
+    }
+  } catch {
+    // Swallow background handler errors to avoid startup crashes on malformed local state.
   }
 });
 

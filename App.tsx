@@ -44,31 +44,50 @@ function AppInner() {
 
   React.useEffect(() => {
     const unsub = notifee.onForegroundEvent(async ({ type, detail }) => {
-      const data = detail.notification?.data;
-      if (type === EventType.ACTION_PRESS) {
-        await processAction(detail.pressAction?.id, data?.medicationId as string | undefined, data?.slot as string | undefined);
-      }
-      if (type === EventType.PRESS && data?.screen === 'Medications') {
-        navigate('Medications', undefined);
+      try {
+        const data = detail.notification?.data;
+        if (type === EventType.ACTION_PRESS) {
+          await processAction(
+            detail.pressAction?.id,
+            data?.medicationId as string | undefined,
+            data?.slot as string | undefined,
+          );
+        }
+        if (type === EventType.PRESS && data?.screen === 'Medications') {
+          navigate('Medications', undefined);
+        }
+      } catch {
+        // Ignore foreground notification errors in release; keep app alive.
       }
     });
 
-    notifee.getInitialNotification().then(async initial => {
-      const data = initial?.notification?.data;
-      if (data?.screen === 'Medications') {
-        setTimeout(() => navigate('Medications', undefined), 300);
-      }
-      await processAction(initial?.pressAction?.id, data?.medicationId as string | undefined, data?.slot as string | undefined);
-    });
+    notifee
+      .getInitialNotification()
+      .then(async initial => {
+        const data = initial?.notification?.data;
+        if (data?.screen === 'Medications') {
+          setTimeout(() => navigate('Medications', undefined), 300);
+        }
+        await processAction(
+          initial?.pressAction?.id,
+          data?.medicationId as string | undefined,
+          data?.slot as string | undefined,
+        );
+      })
+      .catch(() => {});
 
-    AsyncStorage.getItem(PENDING_ACTIONS_KEY).then(async raw => {
-      if (!raw) return;
-      const queued: Array<{ action: string; medicationId: string; slot: string }> = JSON.parse(raw);
-      for (const item of queued) {
-        await processAction(item.action, item.medicationId, item.slot);
-      }
-      await AsyncStorage.removeItem(PENDING_ACTIONS_KEY);
-    });
+    AsyncStorage.getItem(PENDING_ACTIONS_KEY)
+      .then(async raw => {
+        if (!raw) return;
+        const queued: Array<{ action: string; medicationId: string; slot: string }> = JSON.parse(raw);
+        for (const item of queued) {
+          await processAction(item.action, item.medicationId, item.slot);
+        }
+        await AsyncStorage.removeItem(PENDING_ACTIONS_KEY);
+      })
+      .catch(async () => {
+        await AsyncStorage.removeItem(PENDING_ACTIONS_KEY).catch(() => {});
+      });
 
     return () => unsub();
   }, [processAction]);
