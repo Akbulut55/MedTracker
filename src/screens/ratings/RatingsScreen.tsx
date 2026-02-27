@@ -15,35 +15,31 @@ export function RatingsScreen({ navigation }: Props) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () =>
-        user?.role === 'ADMIN' ? (
-          <Pressable onPress={() => navigation.navigate('AdminRatings')} style={{ paddingHorizontal: 10, paddingVertical: 6 }}>
-            <Text style={{ color: 'white', fontWeight: '900' }}>List</Text>
-          </Pressable>
-        ) : null,
+      headerRight: () => (
+        <Pressable onPress={() => navigation.navigate('AdminRatings')} style={{ paddingHorizontal: 10, paddingVertical: 6 }}>
+          <Text style={{ color: 'white', fontWeight: '900' }}>List</Text>
+        </Pressable>
+      ),
     });
-  }, [navigation, user]);
+  }, [navigation]);
 
   const items = useMemo(() => [1, 2, 3, 4, 5], []);
 
   return (
     <View style={styles.root}>
       <View style={styles.card}>
-        <Text style={styles.h}>Rate the app</Text>
+        <Text style={styles.h}>Rate MedTracker</Text>
 
         <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
           {items.map(i => (
             <Pressable key={i} onPress={() => setStars(i)} style={{ padding: 8 }}>
-              <Text style={{ fontSize: 34 }}>{i <= stars ? '★' : '☆'}</Text>
+              <Text style={{ fontSize: 34 }}>{i <= stars ? '*' : 'o'}</Text>
             </Pressable>
           ))}
         </View>
 
-        <Pressable
-          style={styles.btn}
-          onPress={() => addRating(user?.username ?? 'user', stars)}
-        >
-          <Text style={styles.btnTxt}>SAVE</Text>
+        <Pressable style={styles.btn} onPress={() => addRating(user?.username ?? 'user', stars)}>
+          <Text style={styles.btnTxt}>Save Rating</Text>
         </Pressable>
       </View>
     </View>

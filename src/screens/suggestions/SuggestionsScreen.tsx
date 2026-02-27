@@ -4,25 +4,26 @@ import { useData } from '../../state/DataContext';
 import { COLORS, SPACING } from '../../app/theme';
 
 export function SuggestionsScreen() {
-  const { suggestions, reactSuggestion } = useData();
+  const { suggestions, likeSuggestion, dislikeSuggestion } = useData();
 
   return (
     <View style={styles.root}>
       <FlatList
         data={suggestions}
-        keyExtractor={(x) => x.id}
+        keyExtractor={x => x.id}
         contentContainerStyle={{ padding: SPACING.md, gap: 12 }}
+        ListEmptyComponent={<Text style={styles.empty}>No suggestions yet.</Text>}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.meta}>admin • {item.createdAt}</Text>
+            <Text style={styles.meta}>admin | {item.createdAt}</Text>
             <Text style={styles.body}>{item.text}</Text>
 
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
-              <Pressable style={styles.reaction} onPress={() => reactSuggestion(item.id, 1, 0)}>
-                <Text style={styles.reactionTxt}>👍 {item.likes}</Text>
+              <Pressable style={styles.reaction} onPress={() => likeSuggestion(item.id)}>
+                <Text style={styles.reactionTxt}>Like {item.likes}</Text>
               </Pressable>
-              <Pressable style={styles.reaction} onPress={() => reactSuggestion(item.id, 0, 1)}>
-                <Text style={styles.reactionTxt}>👎 {item.dislikes}</Text>
+              <Pressable style={styles.reaction} onPress={() => dislikeSuggestion(item.id)}>
+                <Text style={styles.reactionTxt}>Dislike {item.dislikes}</Text>
               </Pressable>
             </View>
           </View>
@@ -39,4 +40,5 @@ const styles = StyleSheet.create({
   body: { marginTop: 8, color: COLORS.text, fontWeight: '800' },
   reaction: { backgroundColor: 'white', borderWidth: 1, borderColor: COLORS.border, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12 },
   reactionTxt: { fontWeight: '900', color: COLORS.text },
+  empty: { color: COLORS.muted, padding: SPACING.md },
 });

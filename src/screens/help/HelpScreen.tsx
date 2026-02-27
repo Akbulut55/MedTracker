@@ -7,11 +7,14 @@ export function HelpScreen() {
     <View style={styles.root}>
       <View style={styles.card}>
         <Text style={styles.h}>MedTracker Help</Text>
-        <Text style={styles.t}>• Profile: theme, font size</Text>
-        <Text style={styles.t}>• Trainings: read education content</Text>
-        <Text style={styles.t}>• Reminders: admin can add reminders</Text>
-        <Text style={styles.t}>• Diary / Exercise: save daily tracking</Text>
-        <Text style={styles.t}>• Info Sharing: like + comments</Text>
+        <Text style={styles.t}>- Profile: theme, font size, accent, clear local data</Text>
+        <Text style={styles.t}>- Trainings: read-only educational content</Text>
+        <Text style={styles.t}>- Reminders: add/delete reminder cards</Text>
+        <Text style={styles.t}>- Notes: add/open/delete notes</Text>
+        <Text style={styles.t}>- Exercise: save and review nutrition/exercise records</Text>
+        <Text style={styles.t}>- Info Sharing: like topics and add comments</Text>
+        <Text style={styles.t}>- Suggestions: react with like/dislike</Text>
+        <Text style={styles.t}>- Ratings: submit and view ratings list</Text>
       </View>
     </View>
   );

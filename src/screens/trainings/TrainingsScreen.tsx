@@ -16,6 +16,7 @@ export function TrainingsScreen({ navigation }: Props) {
         data={trainings}
         keyExtractor={(x) => x.id}
         contentContainerStyle={{ padding: SPACING.md, gap: 12 }}
+        ListEmptyComponent={<Text style={styles.empty}>No trainings yet.</Text>}
         renderItem={({ item }) => (
           <Pressable style={styles.card} onPress={() => navigation.navigate('TrainingDetail', { id: item.id })}>
             <Text style={styles.title}>{item.title}</Text>
@@ -32,4 +33,5 @@ const styles = StyleSheet.create({
   card: { backgroundColor: COLORS.card, borderRadius: 14, borderWidth: 1, borderColor: COLORS.border, padding: 14 },
   title: { fontWeight: '900', color: COLORS.text, fontSize: 16 },
   sub: { marginTop: 6, color: COLORS.muted },
+  empty: { color: COLORS.muted, padding: SPACING.md },
 });

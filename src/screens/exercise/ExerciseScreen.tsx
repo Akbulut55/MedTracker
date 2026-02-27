@@ -10,30 +10,39 @@ type Props = NativeStackScreenProps<AppStackParamList, 'Exercise'>;
 const TYPES = ['No exercise', 'Walk', 'Swim', 'Bike', 'Yoga', 'Other'];
 
 export function ExerciseScreen({ navigation }: Props) {
-  const { addExercise } = useData();
-  const [veg, setVeg] = useState('150');
-  const [fruit, setFruit] = useState('150');
-  const [minutes, setMinutes] = useState('15');
-  const [types, setTypes] = useState<string[]>(['Walk']);
+  const { addExerciseEntry } = useData();
+  const [veg, setVeg] = useState('');
+  const [fruit, setFruit] = useState('');
+  const [minutes, setMinutes] = useState('');
+  const [types, setTypes] = useState<string[]>([]);
   const [feltBad, setFeltBad] = useState(false);
 
   const toggle = (t: string) => setTypes(prev => (prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]));
 
-  const ok = useMemo(() => Number(veg) >= 0 && Number(fruit) >= 0 && Number(minutes) >= 0, [veg, fruit, minutes]);
+  const ok = useMemo(() => {
+    return (
+      veg.trim().length > 0 &&
+      fruit.trim().length > 0 &&
+      minutes.trim().length > 0 &&
+      Number(veg) >= 0 &&
+      Number(fruit) >= 0 &&
+      Number(minutes) >= 0
+    );
+  }, [veg, fruit, minutes]);
 
   return (
     <View style={styles.root}>
       <View style={styles.card}>
-        <Text style={styles.label}>Vegetables (gr)</Text>
+        <Text style={styles.label}>Vegetables (grams)</Text>
         <TextInput value={veg} onChangeText={setVeg} keyboardType="numeric" style={styles.input} />
 
-        <Text style={[styles.label, { marginTop: 10 }]}>Fruits (gr)</Text>
+        <Text style={[styles.label, { marginTop: 10 }]}>Fruits (grams)</Text>
         <TextInput value={fruit} onChangeText={setFruit} keyboardType="numeric" style={styles.input} />
 
         <Text style={[styles.label, { marginTop: 10 }]}>Exercise minutes</Text>
         <TextInput value={minutes} onChangeText={setMinutes} keyboardType="numeric" style={styles.input} />
 
-        <Text style={[styles.label, { marginTop: 12 }]}>Exercise type (multi)</Text>
+        <Text style={[styles.label, { marginTop: 12 }]}>Exercise type (multi-select)</Text>
         <View style={{ gap: 8, marginTop: 8 }}>
           {TYPES.map(t => (
             <Pressable key={t} onPress={() => toggle(t)} style={[styles.choice, types.includes(t) && styles.choiceOn]}>
@@ -43,18 +52,18 @@ export function ExerciseScreen({ navigation }: Props) {
         </View>
 
         <Pressable onPress={() => setFeltBad(v => !v)} style={[styles.choice, feltBad && styles.choiceOn, { marginTop: 10 }]}>
-          <Text style={[styles.choiceTxt, feltBad && { color: 'white' }]}>Felt bad after exercise? {feltBad ? 'YES' : 'NO'}</Text>
+          <Text style={[styles.choiceTxt, feltBad && { color: 'white' }]}>Felt bad after exercise: {feltBad ? 'Yes' : 'No'}</Text>
         </Pressable>
 
         <Pressable
           disabled={!ok}
           style={[styles.btn, !ok && { opacity: 0.6 }]}
           onPress={() => {
-            addExercise(Number(veg), Number(fruit), Number(minutes), types, feltBad);
+            addExerciseEntry(Number(veg), Number(fruit), Number(minutes), types, feltBad);
             navigation.navigate('ExerciseRecords');
           }}
         >
-          <Text style={styles.btnTxt}>SAVE</Text>
+          <Text style={styles.btnTxt}>Save</Text>
         </Pressable>
 
         <Pressable onPress={() => navigation.navigate('ExerciseRecords')} style={{ marginTop: 12 }}>

@@ -15,8 +15,9 @@ import { TrainingDetailScreen } from '../screens/trainings/TrainingDetailScreen'
 import { RemindersScreen } from '../screens/reminders/RemindersScreen';
 import { AddReminderScreen } from '../screens/reminders/AddReminderScreen';
 
-import { DiaryScreen } from '../screens/diary/DiaryScreen';
-import { DiaryRecordsScreen } from '../screens/diary/DiaryRecordsScreen';
+import { NotesScreen } from '../screens/notes/NotesScreen';
+import { AddNoteScreen } from '../screens/notes/AddNoteScreen';
+import { NoteDetailScreen } from '../screens/notes/NoteDetailScreen';
 
 import { ExerciseScreen } from '../screens/exercise/ExerciseScreen';
 import { ExerciseRecordsScreen } from '../screens/exercise/ExerciseRecordsScreen';
@@ -43,8 +44,9 @@ export type AppStackParamList = {
   Reminders: undefined;
   AddReminder: undefined;
 
-  Diary: undefined;
-  DiaryRecords: undefined;
+  Notes: undefined;
+  AddNote: undefined;
+  NoteDetail: { id: string };
 
   Exercise: undefined;
   ExerciseRecords: undefined;
@@ -99,8 +101,9 @@ export function AppNavigator() {
           <Stack.Screen name="Reminders" component={RemindersScreen} options={{ title: 'Reminders' }} />
           <Stack.Screen name="AddReminder" component={AddReminderScreen} options={{ title: 'Add Reminder' }} />
 
-          <Stack.Screen name="Diary" component={DiaryScreen} options={{ title: 'Diary' }} />
-          <Stack.Screen name="DiaryRecords" component={DiaryRecordsScreen} options={{ title: 'Diary Records' }} />
+          <Stack.Screen name="Notes" component={NotesScreen} options={{ title: 'Notes' }} />
+          <Stack.Screen name="AddNote" component={AddNoteScreen} options={{ title: 'Add Note' }} />
+          <Stack.Screen name="NoteDetail" component={NoteDetailScreen} options={{ title: 'Note Detail' }} />
 
           <Stack.Screen name="Exercise" component={ExerciseScreen} options={{ title: 'Nutrition & Exercise' }} />
           <Stack.Screen name="ExerciseRecords" component={ExerciseRecordsScreen} options={{ title: 'Records' }} />

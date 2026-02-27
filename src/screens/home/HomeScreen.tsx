@@ -1,17 +1,16 @@
 import React from 'react';
-import { FlatList, StyleSheet, Text, View, Pressable } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../../navigation/AppNavigator';
 import { COLORS, SPACING } from '../../app/theme';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
 
-// Only routes that take NO params (safe for Home tiles)
 type HomeRoute =
   | 'Profile'
   | 'Reminders'
   | 'Trainings'
-  | 'Diary'
+  | 'Notes'
   | 'InfoShare'
   | 'Suggestions'
   | 'Exercise'
@@ -19,15 +18,15 @@ type HomeRoute =
   | 'Help';
 
 const MENU: { key: HomeRoute; title: string; icon: string }[] = [
-  { key: 'Profile', title: 'Profilim', icon: '👤' },
-  { key: 'Reminders', title: 'Hatırlatmalar', icon: '⏰' },
-  { key: 'Trainings', title: 'Eğitimlerim', icon: '📘' },
-  { key: 'Diary', title: 'Günlüğüm', icon: '📝' },
-  { key: 'InfoShare', title: 'Bilgi Paylaşımı', icon: '💬' },
-  { key: 'Suggestions', title: 'Öneriler', icon: '💡' },
-  { key: 'Exercise', title: 'Beslenme & Egzersiz', icon: '🏃‍♂️' },
-  { key: 'Ratings', title: 'Görüşlerim', icon: '⭐' },
-  { key: 'Help', title: 'Yardım', icon: '🆘' },
+  { key: 'Profile', title: 'Profile', icon: 'P' },
+  { key: 'Reminders', title: 'Reminders', icon: 'R' },
+  { key: 'Trainings', title: 'Trainings', icon: 'T' },
+  { key: 'Notes', title: 'Notes', icon: 'N' },
+  { key: 'InfoShare', title: 'Info Sharing', icon: 'I' },
+  { key: 'Suggestions', title: 'Suggestions', icon: 'S' },
+  { key: 'Exercise', title: 'Nutrition & Exercise', icon: 'E' },
+  { key: 'Ratings', title: 'Ratings', icon: '*' },
+  { key: 'Help', title: 'Help', icon: '?' },
 ];
 
 export function HomeScreen({ navigation }: Props) {
@@ -38,7 +37,7 @@ export function HomeScreen({ navigation }: Props) {
         numColumns={2}
         columnWrapperStyle={{ gap: 12 }}
         contentContainerStyle={{ padding: SPACING.md, gap: 12 }}
-        keyExtractor={(i) => i.key}
+        keyExtractor={i => i.key}
         renderItem={({ item }) => (
           <Pressable style={styles.tile} onPress={() => navigation.navigate(item.key)}>
             <View style={styles.icon}>
@@ -74,6 +73,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 10,
   },
-  iconTxt: { fontSize: 24 },
+  iconTxt: { fontSize: 24, fontWeight: '900', color: COLORS.brandDark },
   title: { fontWeight: '900', color: COLORS.text, textAlign: 'center' },
 });
