@@ -199,20 +199,9 @@ npm run android
 
 ## Demo / Teslim Bolumu
 
-### Youtube listedisi uygulama calisiyorken cekilmis kisa (max 1 dk) video
-Onerilen kisa video akislari:
-- Video 1: Login -> Home -> tum modul gecisleri
-- Video 2: Reminders/Notes CRUD + confirm + toast
-- Video 3: Medication slot takip + bildirim + taken/snooze
-- Video 4: Symptom filtre + trend + correlation confidence
-- Video 5: Profile goals + badge + backup export/import
-
-Playlist linki:
-- `https://youtube.com/playlist?list=...`
-
-### APK/IPA dosyalari
-Bu projede sadece Android hedeflenmistir.
-- Android APK: `Buraya APK linki ekleyin`
+### Youtube listedisi uygulama calisiyorken cekilmis kisa video
+Video linki:
+[YouTube Demo](https://youtube.com/shorts/QDn9_WNS2OM?feature=share)
 
 ## Gelistirme komutlari
 ```bash
@@ -220,7 +209,6 @@ npm run lint
 npx tsc --noEmit
 npm test -- --watch=false
 ```
-
 ## Test kapsamı
 - Unit test:
   - adherence
