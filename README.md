@@ -201,7 +201,7 @@ npm run android
 
 ### Youtube listedisi uygulama calisiyorken cekilmis kisa video
 Video linki:
-[YouTube Demo](https://youtube.com/shorts/QDn9_WNS2OM?feature=share)
+[YouTube Demo](https://youtube.com/shorts/A6LHbDfNvww?feature=share)
 
 ## Gelistirme komutlari
 ```bash
